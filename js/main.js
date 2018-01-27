@@ -42,6 +42,21 @@ for (let key of Object.keys(habits)) {
                 <div class="history-wrapper" id="${key}"></div>
                 <div class="history-forward"><i class="far fa-angle-right"></i></div>
             </div>
+            <div class="history-selector">
+                <div class="history-selector-arrow-wrapper">
+                    <span class="history-selector-arrow">^</span>
+                    <span class="history-selector-arrow">^</span>
+                    <span class="history-selector-arrow">^</span>
+                    <span class="history-selector-arrow">^</span>
+                    <span class="history-selector-arrow">^</span>
+                    <span class="history-selector-arrow">^</span>
+                    <span class="history-selector-arrow">^</span>
+                </div>
+                <div class="history-selector-option-wrapper">
+                    <div class="history-selector-option" data-option="0">Yes</div>
+                    <div class="history-selector-option" data-option="1">No</div>
+                </div>
+            </div>
         </div>
     `);
     
