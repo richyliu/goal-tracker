@@ -45,24 +45,28 @@ body {
 }
 
 .history-back,.history-forward {
-    // width: 10px;
     padding: 0px;
     margin: 3px;
 }
 
 
+.history-selector-option-wrapper {
+    border-radius: 5px;
+    background-color: gray;
+    padding: 10px;
+}
+
+
 .history-selector-option {
     display: inline-block;
-    border: 2px solid grey;
-    border-radius: 2px;
-    padding: 0px 5px 0px 5px;
+    background-color: white;
+    border-radius: 10px;
+    padding: 5px;
+    margin-left: 10px;
 }
 
 
-.history-selector-arrow:first-child {
-    margin-left: 26px;
-}
 
 .history-selector-arrow {
-    margin-right: 16px;
+    margin-left: 16px;
 }
