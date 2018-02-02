@@ -12,7 +12,8 @@ Date.prototype.addDays = function(days) {
 let COLORS = {
     0: 'green',
     1: 'red',
-    2: 'white'
+    2: 'white',
+    3: 'blue'
 };
 
 
@@ -25,48 +26,71 @@ let habits = {
     },
     'key2': {
         name: 'Eat fruit',
-        history: [1, 1, 0, 1, 1, 1, 1, 1],
+        history: [1, 1, 0, 1, 1, 0, 1, 1],
         start: new Date('1/18/2018')
     }
 };
 
-for (let key of Object.keys(habits)) {
-    let val = habits[key];
-    $('#out').append(`
-        <div class="habit-wrapper">
-            <div class="habit-name">
-                ${val.name}
-            </div>
-            <div class="history-bar">
-                <div class="history-back"><i class="far fa-angle-left"></i></div>
-                <div class="history-wrapper" id="${key}"></div>
-                <div class="history-forward"><i class="far fa-angle-right"></i></div>
-            </div>
-            <div class="history-selector">
-                <div class="history-selector-arrow">^</div>
-                <div class="history-selector-option-wrapper">
-                    <div class="history-selector-option" data-option="0">Yes</div>
-                    <div class="history-selector-option" data-option="1">No</div>
+
+
+function refreshHabits() {
+    $('#out').html('');
+    
+    for (let key of Object.keys(habits)) {
+        let val = habits[key];
+        $('#out').append(`
+            <div class="habit-wrapper" data-key="${key}">
+                <div class="habit-name">
+                    ${val.name}
+                </div>
+                <div class="history-bar">
+                    <div class="history-back"><i class="far fa-angle-left fa-2x"></i></div>
+                    <div class="history-wrapper" id="${key}"></div>
+                    <div class="history-forward"><i class="far fa-angle-right fa-2x"></i></div>
+                </div>
+                <div class="history-selector">
+                    <div class="history-selector-arrow"><i class="fas fa-caret-up" data-fa-transform="grow-25"></i></div>
+                    <div class="history-selector-option-wrapper">
+                        <div class="history-selector-option" data-option="0">Yes</div>
+                        <div class="history-selector-option" data-option="1">No</div>
+                    </div>
                 </div>
             </div>
-        </div>
-    `);
+        `);
+        
+        updateDisplayWeek(key, 1);
+    }
+
+
+    // shift the history forward or backwards by one week
+    $('.history-back,.history-forward').unbind().click(e => {
+        let historyWrapper = $(e.currentTarget).siblings('.history-wrapper');
+        let currentNumber = historyWrapper.data('number');
+        
+        if ($(e.currentTarget).hasClass('history-back'))
+            updateDisplayWeek(historyWrapper.attr('id'), currentNumber + 1);
+        else
+            updateDisplayWeek(historyWrapper.attr('id'), currentNumber - 1);
+    });
     
-    updateDisplayWeek(key, 1);
+    // change item when user clicks on it
+    $('.history-selector-option').unbind().click(e => {
+        let habitWrapper = $(e.target).parents('.habit-wrapper');
+        let key = habitWrapper.data('key');
+        let marginLeft = habitWrapper.find('.history-selector-arrow').css('margin-left');
+        let numBlock = (parseInt(marginLeft.slice(0,marginLeft.length-2)) - 34) / 34;
+        let number = habitWrapper.find(`.history-wrapper .history-block`).eq(numBlock).data('index');
+        
+        // ensure in bounds
+        if (number < habits[key].history.length) {
+            habits[key].history[number] = 3;
+            
+            let historyWrapper = habitWrapper.find('.history-wrapper');
+            updateDisplayWeek(historyWrapper.attr('id'), historyWrapper.data('number'));
+        }
+    });
 }
 
-
-
-// shift the history forward or backwards by one week
-$('.history-back,.history-forward').click(e => {
-    let historyWrapper = $(e.currentTarget).siblings('.history-wrapper');
-    let currentNumber = historyWrapper.data('number');
-    
-    if ($(e.currentTarget).hasClass('history-back'))
-        updateDisplayWeek(historyWrapper.attr('id'), currentNumber + 1);
-    else
-        updateDisplayWeek(historyWrapper.attr('id'), currentNumber - 1);
-});
 
 
 /**
@@ -107,6 +131,47 @@ function updateDisplayWeek(key, weekNumber) {
     }
     
     $(`#${key}`).data('number', weekNumber).html(
-        displayWeek.map(value => `<span class="history-block ${COLORS[value]}"></span>`).join('')
+        displayWeek.map((value, index) => `<span class="history-block ${COLORS[value]}" data-index="${index+beginSlice}"></span>`).join('')
     );
+    
+    
+    // rebind when display week is updated
+    // move arrow when user clicks on a day
+    $('.history-block').unbind().click(e => {
+        let index = $(e.target).prevAll().length;
+        
+        $(e.target).parents('.habit-wrapper').find('.history-selector-arrow').css('margin-left', (34 + 34*index)+ 'px');
+    });
 }
+
+
+
+// init Firebase
+firebase.initializeApp({
+    apiKey: "AIzaSyD16sxuBw-TuNRZaPbXzSH7-iA_hXWts-g",
+    authDomain: "main-fe047.firebaseapp.com",
+    databaseURL: "https://main-fe047.firebaseio.com",
+    projectId: "main-fe047",
+    storageBucket: "main-fe047.appspot.com",
+    messagingSenderId: "900205917314"
+});
+
+let ref = firebase.database().ref('habits');
+
+
+refreshHabits();
+
+
+// bind refresh button
+$('#refresh').click(() => {
+    refreshHabits();
+    // sync with firebase
+    ref.set(JSON.stringify(habits));
+});
+// bind download button;
+$('#download').click(() => {
+    ref.once('value').then(snapshot => {
+        habits = snapshot.val();
+        refreshHabits(JSON.parse(habits));
+    });
+});
