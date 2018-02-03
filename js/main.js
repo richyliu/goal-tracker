@@ -1,6 +1,19 @@
 /* global $ firebase */
 
 
+// global variables
+let COLORS;
+let habits;
+let ref;
+
+
+
+
+/**
+ * Adds or subtracts days from a Date
+ * @param  {Number} days Number of days to add or subtract
+ * @return {Date}      Resulting date
+ */
 Date.prototype.addDays = function(days) {
     let d = new Date(this.valueOf());
     d.setDate(d.getDate() + days);
@@ -9,30 +22,9 @@ Date.prototype.addDays = function(days) {
 
 
 
-let COLORS = {
-    0: 'green',
-    1: 'red',
-    2: 'white',
-    3: 'blue'
-};
-
-
-
-let habits = {
-    'key1': {
-        name: 'Drink water',
-        history: [1, 0, 1, 0, 0, 1, 1, 1],
-        start: new Date('1/18/2018')
-    },
-    'key2': {
-        name: 'Eat fruit',
-        history: [1, 1, 0, 1, 1, 0, 1, 1],
-        start: new Date('1/18/2018')
-    }
-};
-
-
-
+/**
+ * Refresh habits based on new habits in global array
+ */
 function refreshHabits() {
     $('#out').html('');
     
@@ -73,7 +65,8 @@ function refreshHabits() {
             updateDisplayWeek(historyWrapper.attr('id'), currentNumber - 1);
     });
     
-    // change item when user clicks on it
+    
+    // change item when user clicks on option button
     $('.history-selector-option').unbind().click(e => {
         let habitWrapper = $(e.target).parents('.habit-wrapper');
         let key = habitWrapper.data('key');
@@ -83,7 +76,7 @@ function refreshHabits() {
         
         // ensure in bounds
         if (number < habits[key].history.length) {
-            habits[key].history[number] = 3;
+            habits[key].history[number] = $(e.target).data('option');
             
             let historyWrapper = habitWrapper.find('.history-wrapper');
             updateDisplayWeek(historyWrapper.attr('id'), historyWrapper.data('number'));
@@ -99,8 +92,6 @@ function refreshHabits() {
  * @param  {Number} weekNumber What week to display (1 for most recent week)
  */
 function updateDisplayWeek(key, weekNumber) {
-    // ensure weekNumber is greater than 1
-    weekNumber = weekNumber > 1 ? weekNumber : 1;
     let habit = habits[key];
     
     let his = habit.history;
@@ -111,24 +102,25 @@ function updateDisplayWeek(key, weekNumber) {
     let beginSlice = lastSunday - 7*(weekNumber-1);
     let endSlice = beginSlice + 7;
     
+    
     if ((beginSlice < 0 && endSlice < 0) || (beginSlice > his.length-1 && endSlice > his.length-1)) {
         // weekNumber out of bounds, exiting function
         console.error(`Week number ${weekNumber} out of bounds for key ${key}`);
         return;
     }
     
-    console.log(beginSlice, endSlice);
     if (beginSlice < 0) {
         displayWeek = his.slice(0, endSlice);
         // pad arrays with blanks
-        displayWeek.unshift(...Array(8 + beginSlice).fill(2));
+        displayWeek.unshift(...Array(-beginSlice).fill(-1));
     } else if (endSlice > his.length-1) {
         displayWeek = his.slice(beginSlice);
         // pad arrays with blanks
-        displayWeek.push(...Array(7 - his.length + lastSunday).fill(2));
+        displayWeek.push(...Array(7 - his.length + lastSunday).fill(-1));
     } else {
         displayWeek = his.slice(beginSlice, endSlice);
     }
+    
     
     $(`#${key}`).data('number', weekNumber).html(
         displayWeek.map((value, index) => `<span class="history-block ${COLORS[value]}" data-index="${index+beginSlice}"></span>`).join('')
@@ -145,33 +137,112 @@ function updateDisplayWeek(key, weekNumber) {
 }
 
 
-
-// init Firebase
-firebase.initializeApp({
-    apiKey: "AIzaSyD16sxuBw-TuNRZaPbXzSH7-iA_hXWts-g",
-    authDomain: "main-fe047.firebaseapp.com",
-    databaseURL: "https://main-fe047.firebaseio.com",
-    projectId: "main-fe047",
-    storageBucket: "main-fe047.appspot.com",
-    messagingSenderId: "900205917314"
-});
-
-let ref = firebase.database().ref('habits');
-
-
-refreshHabits();
-
-
-// bind refresh button
-$('#refresh').click(() => {
-    refreshHabits();
-    // sync with firebase
-    ref.set(JSON.stringify(habits));
-});
-// bind download button;
-$('#download').click(() => {
+/**
+ * Download habits from firebase
+ */
+function downloadHabits() {
     ref.once('value').then(snapshot => {
-        habits = snapshot.val();
-        refreshHabits(JSON.parse(habits));
+        let newHabits = snapshot.val();
+        habits = _.clone(newHabits);
+        
+        // serialize dates
+        for (let key of Object.keys(habits)) {
+            habits[key].start = new Date(newHabits[key].start);
+        }
+        
+        refreshHabits();
     });
-});
+}
+
+
+
+/**
+ * Ran first
+ */
+function main() {
+    habits = {
+        "-L4OtpqYECxyrGZj7V1r": {
+            "history": [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1],
+            "name": "Mb",
+            "start": new Date(1515916800000)
+        },
+        "-L4OttniwCq7XpMN2VDV": {
+            "history": [1, 1, 0, 2, 2, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 2, 2, 0, 0, 0, 0],
+            "name": "Sleep after 1 snooze",
+            "start": new Date(1515484800000)
+        },
+        "-L4Ov1kb_XNUOC23hg9N": {
+            "history": [1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0],
+            "name": "Eat fruit",
+            "start": new Date(1515484800000)
+        }
+    };
+    
+    COLORS = {
+        '-1': 'white',
+        0: 'green',
+        1: 'red',
+        2: 'gray',
+        3: 'blue'
+    };
+    
+    
+    // init Firebase
+    firebase.initializeApp({
+        apiKey: "AIzaSyD16sxuBw-TuNRZaPbXzSH7-iA_hXWts-g",
+        authDomain: "main-fe047.firebaseapp.com",
+        databaseURL: "https://main-fe047.firebaseio.com",
+        projectId: "main-fe047",
+        storageBucket: "main-fe047.appspot.com",
+        messagingSenderId: "900205917314"
+    });
+
+    ref = firebase.database().ref('habits');
+
+
+    // bind refresh button
+    $('#refresh').click(() => {
+        refreshHabits();
+        
+        // serialize dates
+        let newHabits = _.clone(habits);
+        for (let key of Object.keys(newHabits)) {
+            newHabits[key].start = habits[key].start.getTime();
+        }
+        
+        // sync with firebase
+        ref.set(newHabits);
+    });
+    
+    
+    downloadHabits();
+    // bind download button;
+    $('#download').click(downloadHabits);
+    
+    
+    // bind add button
+    $('#add').click(() => {
+        let name = prompt('Name of habit to be tracked');
+        
+        if (name && name.length > 0) {
+            ref.push({
+                name: name,
+                history: [0],
+                start: new Date().getTime()
+            });
+            
+            downloadHabits();
+            refreshHabits();
+        }
+    });
+    
+    
+    window.setTimeout(() => {
+        $('.history-selector-arrow').css('margin-left', (34 + 34*new Date().getDay())+ 'px');
+    }, 1000);
+    // move selecting pointer to current day;
+    
+}
+
+
+main();
