@@ -83,6 +83,9 @@ function refreshHabits() {
             updateDisplayWeek(historyWrapper.attr('id'), currentNumber + 1);
         else
             updateDisplayWeek(historyWrapper.attr('id'), currentNumber - 1);
+        
+        // close selector
+        $(e.currentTarget).parents('.habit-wrapper').find('.history-selector').hide();
     });
     
     
@@ -151,7 +154,7 @@ function updateDisplayWeek(key, weekNumber) {
     
     // update date for the week
     $(`#${key}`).parents('.habit-wrapper').find('.history-time').html(`
-        ${habit.start.addDays(beginSlice+1).toISOString().slice(0,10)} - ${habit.start.addDays(endSlice).toISOString().slice(0,10)}
+        ${habit.start.addDays(beginSlice).toISOString().slice(0,10)} - ${habit.start.addDays(endSlice-1).toISOString().slice(0,10)}
     `);
     
     
@@ -189,7 +192,8 @@ function downloadHabits() {
         
         // serialize dates
         for (let key of Object.keys(habits)) {
-            habits[key].start = new Date(newHabits[key].start);
+            // create Date with correct timezone offset
+            habits[key].start = new Date(newHabits[key].start + new Date().getTimezoneOffset() * 60000);
             
             // number of days to add
             let numDays = new Date().subtract(habits[key].start) - habits[key].history.length;
@@ -245,14 +249,10 @@ function main() {
         messagingSenderId: "900205917314"
     });
     firebase.auth().onAuthStateChanged(user => {
-        if (!user) {
-            firebase
-                .auth()
-                .signInWithEmailAndPassword('a@a.com', prompt('Password'))
-                .then(downloadHabits)
-                .catch(e => console.error(e));
-        } else {
+        if (user) {
             downloadHabits();
+        } else {
+            firebase.auth().signInWithEmailAndPassword('a@a.com', prompt('Password')).then(downloadHabits).catch(e => console.error(e));
         }
     });
     
@@ -274,7 +274,7 @@ function main() {
             ref.push({
                 name: name,
                 history: [0],
-                start: new Date().getTime()
+                start: new Date().setHours(0,0,0,0) // discard time part
             });
             
             downloadHabits();
