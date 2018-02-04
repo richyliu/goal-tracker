@@ -101,6 +101,8 @@ function refreshHabits() {
             
             let historyWrapper = habitWrapper.find('.history-wrapper');
             updateDisplayWeek(historyWrapper.attr('id'), historyWrapper.data('number'));
+            // auto upload habits
+            uploadHabits();
         }
     });
 }
@@ -123,8 +125,7 @@ function updateDisplayWeek(key, weekNumber) {
     let beginSlice = lastSunday - 7*(weekNumber-1);
     let endSlice = beginSlice + 7;
     
-    
-    if ((beginSlice < 0 && endSlice < 0) || (beginSlice > his.length-1 && endSlice > his.length-1)) {
+    if ((beginSlice < 0 && endSlice <= 0) || (beginSlice > his.length-1 && endSlice > his.length-1)) {
         // harmless warning; weekNumber out of bounds, exiting function
         console.warn(`Week number ${weekNumber} out of bounds for key ${key}`);
         return;
@@ -150,7 +151,7 @@ function updateDisplayWeek(key, weekNumber) {
     
     // update date for the week
     $(`#${key}`).parents('.habit-wrapper').find('.history-time').html(`
-        ${habit.start.addDays(beginSlice).toISOString().slice(0,10)} - ${habit.start.addDays(endSlice).toISOString().slice(0,10)}
+        ${habit.start.addDays(beginSlice+1).toISOString().slice(0,10)} - ${habit.start.addDays(endSlice).toISOString().slice(0,10)}
     `);
     
     
@@ -206,6 +207,22 @@ function downloadHabits() {
 
 
 /**
+ * Upload habits to firebase
+ */
+function uploadHabits() {
+    // serialize dates
+    let newHabits = $.extend(true, {}, habits);
+    for (let key of Object.keys(newHabits)) {
+        newHabits[key].start = habits[key].start.getTime();
+    }
+    
+    // sync with firebase
+    ref.set(newHabits);
+}
+
+
+
+/**
  * Ran first
  */
 function main() {
@@ -244,16 +261,7 @@ function main() {
 
 
     // bind refresh button
-    $('#refresh').click(() => {
-        // serialize dates
-        let newHabits = $.extend(true, {}, habits);
-        for (let key of Object.keys(newHabits)) {
-            newHabits[key].start = habits[key].start.getTime();
-        }
-        
-        // sync with firebase
-        ref.set(newHabits);
-    });
+    $('#refresh').click(uploadHabits);
     
     // bind download button;
     $('#download').click(downloadHabits);
