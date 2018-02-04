@@ -21,6 +21,17 @@ Date.prototype.addDays = function(days) {
 };
 
 
+/**
+ * Gets the difference between 2 date
+ * @param  {Date} date Subtracted from original date
+ * @return {Number}      Number of days in between, as an integer
+ */
+Date.prototype.subtract = function(date) {
+    return Math.round(Math.abs((this.getTime() - date.getTime())/86400000));
+};
+
+
+
 
 /**
  * Refresh habits based on new habits in global array
@@ -32,9 +43,8 @@ function refreshHabits() {
         let val = habits[key];
         $('#out').append(`
             <div class="habit-wrapper" data-key="${key}">
-                <div class="habit-name">
-                    ${val.name}
-                </div>
+                <div class="habit-name">${val.name}</div>
+                <div class="history-time"></div>
                 <div class="history-bar">
                     <div class="history-back"><i class="far fa-angle-left fa-2x"></i></div>
                     <div class="history-wrapper" id="${key}"></div>
@@ -43,8 +53,18 @@ function refreshHabits() {
                 <div class="history-selector">
                     <div class="history-selector-arrow"><i class="fas fa-caret-up" data-fa-transform="grow-25"></i></div>
                     <div class="history-selector-option-wrapper">
-                        <div class="history-selector-option" data-option="0">Yes</div>
-                        <div class="history-selector-option" data-option="1">No</div>
+                        <div class="history-selector-option yes" data-option="0">
+                            <i class="fas fa-check fa-2x"></i>
+                        </div>
+                        <div class="history-selector-option no" data-option="1">
+                            <i class="fas fa-times fa-2x"></i>
+                        </div>
+                        <div class="history-selector-option delete" data-option="-1">
+                            <i class="fas fa-caret-square-left fa-2x"></i>
+                        </div>
+                        <div class="history-selector-option skip" data-option="2">
+                            <i class="fas fa-arrow-circle-right fa-2x"></i>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -68,15 +88,16 @@ function refreshHabits() {
     
     // change item when user clicks on option button
     $('.history-selector-option').unbind().click(e => {
-        let habitWrapper = $(e.target).parents('.habit-wrapper');
+        let target = $(e.currentTarget);
+        let habitWrapper = target.parents('.habit-wrapper');
         let key = habitWrapper.data('key');
         let marginLeft = habitWrapper.find('.history-selector-arrow').css('margin-left');
         let numBlock = (parseInt(marginLeft.slice(0,marginLeft.length-2)) - 34) / 34;
         let number = habitWrapper.find(`.history-wrapper .history-block`).eq(numBlock).data('index');
         
         // ensure in bounds
-        if (number < habits[key].history.length) {
-            habits[key].history[number] = $(e.target).data('option');
+        if (number >= 0 && number < habits[key].history.length) {
+            habits[key].history[number] = target.data('option');
             
             let historyWrapper = habitWrapper.find('.history-wrapper');
             updateDisplayWeek(historyWrapper.attr('id'), historyWrapper.data('number'));
@@ -104,8 +125,8 @@ function updateDisplayWeek(key, weekNumber) {
     
     
     if ((beginSlice < 0 && endSlice < 0) || (beginSlice > his.length-1 && endSlice > his.length-1)) {
-        // weekNumber out of bounds, exiting function
-        console.error(`Week number ${weekNumber} out of bounds for key ${key}`);
+        // harmless warning; weekNumber out of bounds, exiting function
+        console.warn(`Week number ${weekNumber} out of bounds for key ${key}`);
         return;
     }
     
@@ -122,17 +143,36 @@ function updateDisplayWeek(key, weekNumber) {
     }
     
     
+    // add history blocks
     $(`#${key}`).data('number', weekNumber).html(
         displayWeek.map((value, index) => `<span class="history-block ${COLORS[value]}" data-index="${index+beginSlice}"></span>`).join('')
     );
+    
+    // update date for the week
+    $(`#${key}`).parents('.habit-wrapper').find('.history-time').html(`
+        ${habit.start.addDays(beginSlice).toISOString().slice(0,10)} - ${habit.start.addDays(endSlice).toISOString().slice(0,10)}
+    `);
     
     
     // rebind when display week is updated
     // move arrow when user clicks on a day
     $('.history-block').unbind().click(e => {
         let index = $(e.target).prevAll().length;
+        let habitWrapper = $(e.target).parents('.habit-wrapper');
+        let arrow = habitWrapper.find('.history-selector-arrow');
+        let historySelector = habitWrapper.find('.history-selector');
+        let newMargin = (34 + 34*index)+ 'px';
         
-        $(e.target).parents('.habit-wrapper').find('.history-selector-arrow').css('margin-left', (34 + 34*index)+ 'px');
+        if (arrow.css('margin-left') == newMargin) {
+            // second click
+            historySelector.toggle();
+        } else {
+            if (historySelector.css('display') == 'none') {
+                // show if hidden;
+                historySelector.show();
+            }
+            arrow.css('margin-left', newMargin);
+        }
     });
 }
 
@@ -143,14 +183,24 @@ function updateDisplayWeek(key, weekNumber) {
 function downloadHabits() {
     ref.once('value').then(snapshot => {
         let newHabits = snapshot.val();
-        habits = _.clone(newHabits);
+        console.log(newHabits);
+        
+        habits = $.extend(true, {}, newHabits);
         
         // serialize dates
         for (let key of Object.keys(habits)) {
             habits[key].start = new Date(newHabits[key].start);
+            
+            // number of days to add
+            let numDays = new Date().subtract(habits[key].start) - habits[key].history.length;
+            if (numDays > 0)
+                habits[key].history.push(...Array(numDays).fill(-1));
         }
         
         refreshHabits();
+        
+        // move selecting pointer to current day
+        $('.history-selector-arrow').css('margin-left', (34 + 34*new Date().getDay())+ 'px');
     });
 }
 
@@ -160,24 +210,6 @@ function downloadHabits() {
  * Ran first
  */
 function main() {
-    habits = {
-        "-L4OtpqYECxyrGZj7V1r": {
-            "history": [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1],
-            "name": "Mb",
-            "start": new Date(1515916800000)
-        },
-        "-L4OttniwCq7XpMN2VDV": {
-            "history": [1, 1, 0, 2, 2, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 2, 2, 0, 0, 0, 0],
-            "name": "Sleep after 1 snooze",
-            "start": new Date(1515484800000)
-        },
-        "-L4Ov1kb_XNUOC23hg9N": {
-            "history": [1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0],
-            "name": "Eat fruit",
-            "start": new Date(1515484800000)
-        }
-    };
-    
     COLORS = {
         '-1': 'white',
         0: 'green',
@@ -196,16 +228,26 @@ function main() {
         storageBucket: "main-fe047.appspot.com",
         messagingSenderId: "900205917314"
     });
+    firebase.auth().onAuthStateChanged(user => {
+        if (!user) {
+            firebase
+                .auth()
+                .signInWithEmailAndPassword('a@a.com', prompt('Password'))
+                .then(downloadHabits)
+                .catch(e => console.error(e));
+        } else {
+            downloadHabits();
+        }
+    });
+    
 
     ref = firebase.database().ref('habits');
 
 
     // bind refresh button
     $('#refresh').click(() => {
-        refreshHabits();
-        
         // serialize dates
-        let newHabits = _.clone(habits);
+        let newHabits = $.extend(true, {}, habits);
         for (let key of Object.keys(newHabits)) {
             newHabits[key].start = habits[key].start.getTime();
         }
@@ -214,11 +256,8 @@ function main() {
         ref.set(newHabits);
     });
     
-    
-    downloadHabits();
     // bind download button;
     $('#download').click(downloadHabits);
-    
     
     // bind add button
     $('#add').click(() => {
@@ -236,12 +275,11 @@ function main() {
         }
     });
     
-    
-    window.setTimeout(() => {
-        $('.history-selector-arrow').css('margin-left', (34 + 34*new Date().getDay())+ 'px');
-    }, 1000);
-    // move selecting pointer to current day;
-    
+    // bind sign out button;
+    $('#signout').click(() => {
+        firebase.auth().signOut();
+        window.reload();
+    });
 }
 
 

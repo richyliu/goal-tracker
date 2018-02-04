@@ -55,12 +55,30 @@ body {
     padding: 3px;
     margin: 0px;
 }
+.history-back:active,.history-forward:active {
+    background-color: #cecece;
+}
 
 
 .history-selector-option-wrapper {
     border-radius: 5px;
     background-color: gray;
     padding: 10px;
+}
+
+.history-selector-option-wrapper {
+    .yes {
+        color: green;
+    }
+    .no {
+        color: red
+    }
+    .delete {
+        color: black;
+    }
+    .skip {
+        color: gray;
+    }
 }
 
 
@@ -72,6 +90,9 @@ body {
     margin-left: 10px;
     min-width: 40px;
     text-align: center;
+}
+.history-selector-option:active {
+    background-color: #cecece;
 }
 
 
@@ -92,15 +113,28 @@ body {
     color: #0080ff;
 }
 
-.titlebar > * {
+.titlebar-button {
     display: inline;
     margin-left: 20px;
 }
-
-#refresh {
-    // float: left;
+.titlebar-button:active {
+    color: #0062c3;
 }
 
-#add {
-    // float: right;
+.history-bar,.history-selector {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none;
+}
+
+/* start off being hidden */
+.history-selector {
+    display: none;
+}
+
+.history-time {
+    padding-left: 15px;
 }
