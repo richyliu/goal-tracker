@@ -183,7 +183,6 @@ function updateDisplayWeek(key, weekNumber) {
 function downloadHabits() {
     ref.once('value').then(snapshot => {
         let newHabits = snapshot.val();
-        console.log(newHabits);
         
         habits = $.extend(true, {}, newHabits);
         
