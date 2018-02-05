@@ -187,19 +187,21 @@ function updateDisplayWeek(key, weekNumber) {
 function downloadHabits() {
     ref.once('value').then(snapshot => {
         let newHabits = snapshot.val();
+        console.log(newHabits);
         
         habits = $.extend(true, {}, newHabits);
         
         // serialize dates
         for (let key of Object.keys(habits)) {
             // create Date with correct timezone offset
-            habits[key].start = new Date(newHabits[key].start + new Date().getTimezoneOffset() * 60000);
+            habits[key].start = new Date(newHabits[key].start);
             
             // number of days to add
             let numDays = new Date().subtract(habits[key].start) - habits[key].history.length;
             if (numDays > 0)
                 habits[key].history.push(...Array(numDays).fill(-1));
         }
+        console.log(habits);
         
         refreshHabits();
         
@@ -214,6 +216,7 @@ function downloadHabits() {
  * Upload habits to firebase
  */
 function uploadHabits() {
+    console.log('upload');
     // serialize dates
     let newHabits = $.extend(true, {}, habits);
     for (let key of Object.keys(newHabits)) {
@@ -273,7 +276,7 @@ function main() {
         if (name && name.length > 0) {
             ref.push({
                 name: name,
-                history: [0],
+                history: [-1],
                 start: new Date().setHours(0,0,0,0) // discard time part
             });
             
