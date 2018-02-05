@@ -197,7 +197,8 @@ function downloadHabits() {
             habits[key].start = new Date(newHabits[key].start);
             
             // number of days to add
-            let numDays = new Date().subtract(habits[key].start) - habits[key].history.length;
+            let numDays = new Date().subtract(habits[key].start) - habits[key].history.length + 1;
+            console.log(new Date().subtract(habits[key].start));
             if (numDays > 0)
                 habits[key].history.push(...Array(numDays).fill(-1));
         }
@@ -254,15 +255,25 @@ function main() {
     firebase.auth().onAuthStateChanged(user => {
         if (user) {
             downloadHabits();
+            $('#password-wrapper').hide();
+            $('#wrapper').show();
         } else {
-            firebase.auth().signInWithEmailAndPassword('a@a.com', prompt('Password')).then(downloadHabits).catch(e => console.error(e));
+            console.warn("Not logged in, waiting for user to log in");
         }
     });
     
 
     ref = firebase.database().ref('habits');
 
-
+    
+    // bind password login button
+    $('#password-enter').click(() => {
+        firebase.auth().signInWithEmailAndPassword('a@a.com', $('#password').val()).then(downloadHabits).catch(e => console.error(e));
+        
+        $('#password-wrapper').hide();
+        $('#wrapper').show();
+    });
+    
     // bind refresh button
     $('#refresh').click(uploadHabits);
     

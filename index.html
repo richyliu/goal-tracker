@@ -34,7 +34,14 @@
 
 <!-- makes :active work on mobile -->
 <body ontouchstart="">
-    <div id="wrapper">
+    <div id="password-wrapper">
+        <label for="password">Enter your password</label>
+        <input type="password" id="password"/>
+        <button type="button" id="password-enter">Enter</button>
+    </div>
+    
+    
+    <div id="wrapper" style="display: none;">
         <h1>Habit Tracker</h1>
         <div class="titlebar">
             <div class="titlebar-button" id="refresh">
@@ -51,11 +58,11 @@
             </div>
         </div>
         <div id="out"></div>
-    </div>
     
-    <p id="version">
-        Last updated: 2018-02-05 01:44 PM
-    </p>
+        <p id="version">
+            Last updated: 2018-02-05 01:20 PM
+        </p>
+    </div>
 
 
 
