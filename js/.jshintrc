@@ -1,0 +1,6 @@
+{
+	"globals": {
+		"$": true,
+		"Framework7": true
+	}
+}
