@@ -204,7 +204,7 @@ function downloadHabits() {
             habits[key].start = new Date(newHabits[key].start);
             
             // number of days to add
-            let numDays = new Date().subtract(habits[key].start) - habits[key].history.length;
+            let numDays = new Date().subtract(habits[key].start) - habits[key].history.length + 1;
             if (numDays > 0)
                 habits[key].history.push(...Array(numDays).fill(-1));
         }
