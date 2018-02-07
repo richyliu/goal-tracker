@@ -98,6 +98,7 @@ function refreshHabits() {
         let numBlock = (parseInt(marginLeft.slice(0,marginLeft.length-2)) - 34) / 34;
         let number = habitWrapper.find(`.history-wrapper .history-block`).eq(numBlock).data('index');
         
+        console.log(number);
         // ensure in bounds
         if (number >= 0 && number < habits[key].history.length) {
             habits[key].history[number] = target.data('option');
@@ -138,11 +139,17 @@ function updateDisplayWeek(key, weekNumber) {
         displayWeek = his.slice(0, endSlice);
         // pad arrays with blanks
         displayWeek.unshift(...Array(-beginSlice).fill(-1));
-    } else if (endSlice > his.length-1) {
-        displayWeek = his.slice(beginSlice);
+    }
+    if (endSlice > his.length-1) {
+        // need to splice only end
+        if (beginSlice >= 0) {
+            displayWeek = his.slice(beginSlice);
+        }
+        
         // pad arrays with blanks
-        displayWeek.push(...Array(7 - his.length + lastSunday).fill(-1));
-    } else {
+        displayWeek.push(...Array(7 - displayWeek.length).fill(-1));
+    }
+    if (beginSlice >= 0 && endSlice < his.length){
         displayWeek = his.slice(beginSlice, endSlice);
     }
     
@@ -197,8 +204,7 @@ function downloadHabits() {
             habits[key].start = new Date(newHabits[key].start);
             
             // number of days to add
-            let numDays = new Date().subtract(habits[key].start) - habits[key].history.length + 1;
-            console.log(new Date().subtract(habits[key].start));
+            let numDays = new Date().subtract(habits[key].start) - habits[key].history.length;
             if (numDays > 0)
                 habits[key].history.push(...Array(numDays).fill(-1));
         }
@@ -221,7 +227,7 @@ function uploadHabits() {
     // serialize dates
     let newHabits = $.extend(true, {}, habits);
     for (let key of Object.keys(newHabits)) {
-        newHabits[key].start = habits[key].start.getTime();
+        newHabits[key].start = habits[key].start.setHours(0, 0, 0, 0);
     }
     
     // sync with firebase
