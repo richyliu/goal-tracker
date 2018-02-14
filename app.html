@@ -45,41 +45,60 @@
 
                 <!-- Scrollable page content -->
                 <div class="page-content">
-                    <p>Page content goes here</p>
-                    
                     <div class="list media-list">
                         <ul>
                             <li>
-                                <!-- <div class="item-content item-link"> -->
-                                <a href="#" class="item-link item-content disable-active-state">
+                                <a href="#a" class="item-link item-content disable-active-state">
                                     <div class="item-inner">
                                         <div class="item-title-row">
-                                            <div class="item-title">Name</div>
-                                            <div class="item-after">17:14</div>
+                                            <div class="item-title">Name of habit</div>
+                                            <div class="item-after">16:00</div>
                                         </div>
                                         
                                         <p class="row">
-                                            <button class="col button color-red disable-active-state">Red</button>
-                                            <button class="col button color-green">Green</button>
-                                            <button class="col button color-blue">Blue</button>
+                                            <button class="col button color-green">Yes</button>
+                                            <button class="col button color-red">No</button>
+                                            <button class="col button color-blue">Skip</button>
                                         </p>
                                     </div>
                                 </a>
-                                <!-- </div> -->
+                            </li>
+                            <li>
+                                <a href="#f" class="item-link item-content disable-active-state">
+                                    <div class="item-inner">
+                                        <div class="item-title-row">
+                                            <div class="item-title">Name of habit 2</div>
+                                            <div class="item-after">16:00</div>
+                                        </div>
+                                        
+                                        <!-- Range Slider element -->
+                                        <div class="range-slider range-slider-init" data-label="true">
+                                            <!-- range input -->
+                                            <input type="range" min="0" max="10" step="1" value="8"></input>
+                                        </div>
+                                    </div>
+                                </a>
                             </li>
                         </ul>
                     </div>
-                    
-                    <!-- Link to another page -->
-                    <a href="/about/">About app</a>
+                    <!-- /.list.media-list -->
                 </div>
+                <!-- /.page-content -->
+                
             </div>
+            <!-- /.page -->
         </div>
+        <!-- /.view.view-main -->
+        
     </div>
+    <!-- /#app -->
+    
+    
     <!-- Path to Framework7 Library JS-->
     <script type="text/javascript" src="framework7/js/framework7.min.js"></script>
     <!-- Path to your app js-->
     <script type="text/javascript" src="js/my-app.js"></script>
+    
 </body>
 
 </html>
