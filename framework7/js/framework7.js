@@ -3767,10 +3767,18 @@ function initTouch() {
 
     return true;
   }
+  
+  // BEGIN CODE CHANGED BY RICHARD LIU
   function addActive() {
     if (!activableElement) { return; }
-    activableElement.addClass('active-state');
+    // Does not add active-state class (click background color) on specified elements with disable-active-state class
+    activableElement.forEach(el => {
+      if (el.className.search('disable-active-state') == -1)
+        $$1$1(el).addClass('active-state');
+    });
   }
+  // END CODE CHANGED BY RICHARD LIU
+  
   function removeActive() {
     if (!activableElement) { return; }
     activableElement.removeClass('active-state');

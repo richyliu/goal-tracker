@@ -2,5 +2,6 @@
 	"globals": {
 		"$": true,
 		"Framework7": true
-	}
+	},
+    "esversion": 6
 }

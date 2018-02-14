@@ -1,3 +1,5 @@
+let $$ = Dom7;
+
 let app = new Framework7({
     // App root element
     root: '#app',
@@ -18,3 +20,17 @@ let app = new Framework7({
 });
 
 let mainView = app.views.create('.view-main');
+
+// $$('button').click(e => {
+//     e.stopPropagation();
+// });
+// 
+// $$('a').click(e => {
+//     e.stopPropagation();
+//     e.preventDefault();
+// });
+
+let el = document.querySelector('a.item-link');
+let elClone = el.cloneNode(true);
+
+el.parentNode.replaceChild(elClone, el);
