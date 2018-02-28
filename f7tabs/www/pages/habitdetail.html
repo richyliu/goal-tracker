@@ -1,5 +1,5 @@
 <template>
-    <div class="page" data-name="catalog">
+    <div class="page" data-name="detail">
         <div class="navbar">
             <div class="navbar-inner sliding">
                 <div class="left">
@@ -8,13 +8,13 @@
                         <span class="ios-only">Back</span>
                     </a>
                 </div>
-                <div class="title">{{product.title}}</div>
+                <div class="title">{{name}}</div>
             </div>
         </div>
         <div class="page-content">
-            <div class="block-title">About {{product.title}}</div>
+            <div class="block-title">{{js "new Date(this.updateTime).toISOString().slice(11, 16)"}}</div>
             <div class="block block-strong">
-                {{product.description}}
+                    {{js "this.type.toString()"}}
             </div>
         </div>
     </div>
@@ -22,16 +22,7 @@
 <script>
     return {
         data: function () {
-            var productId = this.$route.params.id;
-            var currentProduct;
-            this.$root.products.forEach(function (product) {
-                if (product.id === productId) {
-                    currentProduct = product;
-                }
-            });
-            return {
-                product: currentProduct,
-            };
+            return this.$root.habits[this.$route.params.id];
         }
     };
 </script>

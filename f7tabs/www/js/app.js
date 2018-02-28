@@ -9,7 +9,12 @@ var app = new Framework7({
     theme: 'auto', // Automatic theme detection
     // App root data
     data: function () {
-        return {
+        let TYPES = {
+            SLIDER: Symbol('slider'),
+            BOOLEAN: Symbol('boolean')
+        };
+
+        let combinedData = {
             user: {
                 firstName: 'John',
                 lastName: 'Doe',
@@ -29,8 +34,22 @@ var app = new Framework7({
                     title: 'Apple iPhone X',
                     description: 'Expedita sequi perferendis quod illum pariatur aliquam, alias laboriosam! Vero blanditiis placeat, mollitia necessitatibus reprehenderit. Labore dolores amet quos, accusamus earum asperiores officiis assumenda optio architecto quia neque, quae eum.'
                 },
+            ],
+            habits: [
+                {
+                    name: 'Eating fruit',
+                    type: TYPES.SLIDER,
+                    updateTime: 1000*60*60*22
+                }, {
+                    name: 'Ate brunch',
+                    type: TYPES.BOOLEAN,
+                    updateTime: 1000*60*60*16
+                }
             ]
         };
+        combinedData.TYPES = TYPES;
+
+        return combinedData;
     },
     // App root methods
     methods: {
@@ -52,6 +71,8 @@ var catalogView = app.views.create('#view-catalog', {
 var settingsView = app.views.create('#view-settings', {
     url: '/settings/'
 });
+
+app.router.navigate('/habits/');
 
 
 // Login Screen Demo

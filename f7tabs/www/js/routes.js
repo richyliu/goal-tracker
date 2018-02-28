@@ -6,6 +6,9 @@ routes = [
         path: '/about/',
         url: './pages/about.html',
     }, {
+        path: '/habits/',
+        componentUrl: './pages/habits.html',
+    }, {
         path: '/catalog/',
         componentUrl: './pages/catalog.html',
     }, {
@@ -14,6 +17,9 @@ routes = [
     }, {
         path: '/settings/',
         url: './pages/settings.html',
+    }, {
+        path: '/habit/:id/',
+        componentUrl: './pages/habitdetail.html',
     // Page Loaders & Router
     }, {
         path: '/page-loader-template7/:user/:userId/:posts/:postId/',

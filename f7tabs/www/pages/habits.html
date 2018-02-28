@@ -1,0 +1,49 @@
+<template>
+    <div class="page" data-name="habits">
+        <div class="navbar">
+            <div class="navbar-inner sliding">
+                <div class="left">
+                    <a href="#" class="link back">
+                        <i class="icon icon-back"></i>
+                        <span class="ios-only">Back</span>
+                    </a>
+                </div>
+                <div class="title">Habits</div>
+            </div>
+        </div>
+        <div class="page-content">
+            <div class="list media-list">
+                <ul>
+                    {{#each habits}}
+                    <li>
+                        <a href="/habit/{{@index}}/" class="item-link item-content" onclick="event.preventDefault(); return false;">
+                        <!-- <div class="item-content"> -->
+                            <div class="item-inner">
+                                <div class="item-title-row">
+                                    <div class="item-title">{{name}}</div>
+                                    <div class="item-after">{{js "new Date(this.updateTime).toISOString().slice(11, 16)"}}</div>
+                                </div>
+                                <div class="item-subtitle">{{js "this.type.toString()"}}</div>
+                                <div class="item-row">    
+                                    <button class="item-cell button green" onclick="app.router.navigate('/about/')">Yes</button>
+                                    <button class="item-cell button red">No</button>
+                                    <button class="item-cell button gray">Skip</button>
+                                </div>
+                            </div>
+                        </a>
+                        <!-- </div> -->
+                    </li>
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    return {
+        data: function () {
+            return this.$root;
+        }
+    };
+</script>
