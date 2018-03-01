@@ -1,7 +1,7 @@
-routes = [
+const routes = [
     {
         path: '/',
-        url: './index.html',
+        url: './pages/home.html',
     }, {
         path: '/about/',
         url: './pages/about.html',
@@ -9,8 +9,8 @@ routes = [
         path: '/habits/',
         componentUrl: './pages/habits.html',
     }, {
-        path: '/catalog/',
-        componentUrl: './pages/catalog.html',
+        path: '/daily/',
+        componentUrl: './pages/daily.html',
     }, {
         path: '/product/:id/',
         componentUrl: './pages/product.html',

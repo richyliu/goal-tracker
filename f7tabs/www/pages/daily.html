@@ -1,34 +1,33 @@
 <template>
-    <div class="page" data-name="habits">
+    <div class="page" data-name="daily">
         <div class="navbar">
             <div class="navbar-inner sliding">
-                <div class="left">
-                    <a href="#" class="link back">
-                        <i class="icon icon-back"></i>
-                        <span class="ios-only">Back</span>
-                    </a>
-                </div>
-                <div class="title">Habits</div>
+                <div class="title">Daily</div>
             </div>
         </div>
         <div class="page-content">
             <div class="block block-strong">
-                Here you can view detailed information for all of your habits
+                Welcome to the daily page
             </div>
             
             <div class="list media-list">
                 <ul>
                     {{#each habits}}
                     <li>
-                        <a href="/habit/{{@index}}/" class="item-link item-content">
+                        <div class="item-content">
                             <div class="item-inner">
                                 <div class="item-title-row">
                                     <div class="item-title">{{name}}</div>
                                     <div class="item-after">{{js "new Date(this.updateTime).toISOString().slice(11, 16)"}}</div>
                                 </div>
                                 <div class="item-subtitle">{{js "this.type.toString()"}}</div>
+                                <div class="item-text item-row">
+                                    <button class="button item-cell">Yes</button>
+                                    <button class="button item-cell">No</button>
+                                    <button class="button item-cell">Skip</button>
+                                </div>
                             </div>
-                        </a>
+                        </div>
                     </li>
                     {{/each}}
                 </ul>
@@ -39,8 +38,10 @@
 
 <script>
     return {
-        data: function () {
-            return this.$root;
+        data: function() {
+            return {
+                habits: this.$root.habits,
+            };
         }
     };
 </script>
